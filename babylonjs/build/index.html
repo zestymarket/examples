@@ -1,63 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html style="margin: 0; overflow: hidden;">
   <head>
       <script src="https://cdn.babylonjs.com/babylon.js"></script>
       <script src="https://ipfs.io/ipns/lib.zesty.market/zesty-babylonjs-sdk.js"></script>
   </head>
   <body>
     <canvas id="renderCanvas">
-      <script type="module">            
+      <script type="module">
         const canvas = document.getElementById("renderCanvas");
         canvas.style.width = "100%";
-        canvas.style.height = "100%";
+        canvas.style.height = "100vh";
         const engine = new BABYLON.Engine(canvas, true);
         let scene;
 
         const createScene = (async function () {
           scene = new BABYLON.Scene(engine);
-          scene.clearColor = new BABYLON.Color3.Blue();
           const xrHelper = await scene.createDefaultXRExperienceAsync();
 
-          var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, 0), scene);
+          var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000.0 }, scene);
+          var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+          skyboxMaterial.backFaceCulling = false;
+          skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("../../res/skybox/", scene, ["posx.png", "posy.png", "posz.png", "negx.png", "negy.png", "negz.png"]);
+          skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+          skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+          skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+          skybox.material = skyboxMaterial;
 
-          //var light = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(0, -1, 1), scene);
+          var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 1.6, 0), scene);
+          scene.activeCamera = camera;
+          scene.activeCamera.attachControl(canvas, true);
+
           var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
           const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-          groundMaterial.diffuseColor = new BABYLON.Color3.Green();
+          groundMaterial.diffuseColor = new BABYLON.Color3.FromHexString("#567d46");
 
-          const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+          const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 256, height: 256 });
           ground.material = groundMaterial;
 
-          const zestyBanner1 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'tall', 'standard', 2, scene, xrHelper);
-          zestyBanner1.position = new BABYLON.Vector3(0, 0, 0);
+          const wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
+          wallMaterial.diffuseColor = new BABYLON.Color3.White();
 
-          const zestyBanner2 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'wide', 'standard', 2, scene, xrHelper);
-          zestyBanner2.position = new BABYLON.Vector3(0, 0, 1);
+          const wall1 = BABYLON.MeshBuilder.CreateBox("box", { height: 3, width: 3, depth: .25 }, scene);
+          wall1.position = new BABYLON.Vector3(0, 1.5, 2.15);
+          wall1.material = wallMaterial;
 
-          const zestyBanner3 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'square', 'standard', 2, scene, xrHelper);
-          zestyBanner3.position = new BABYLON.Vector3(0, 0, 2);
+          const wall2 = BABYLON.MeshBuilder.CreateBox("box", { height: 3, width: 3, depth: .25 }, scene);
+          wall2.position = new BABYLON.Vector3(-3.15, 1.5, 0);
+          wall2.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+          wall2.material = wallMaterial;
 
-          const zestyBanner4 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'tall', 'minimal', 2, scene, xrHelper);
-          zestyBanner4.position = new BABYLON.Vector3(0, 0, 3);
+          const wall3 = BABYLON.MeshBuilder.CreateBox("box", { height: 3, width: 3, depth: .25 }, scene);
+          wall3.position = new BABYLON.Vector3(3.15, 1.5, 0);
+          wall3.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+          wall3.material = wallMaterial;
 
-          const zestyBanner5 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'wide', 'minimal', 2, scene, xrHelper);
-          zestyBanner5.position = new BABYLON.Vector3(0, 0, 4);
+          const zestyBanner1 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'tall', 'standard', 1, scene, xrHelper);
+          zestyBanner1.position = new BABYLON.Vector3(-.63, 2, 2);
 
-          const zestyBanner6 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'square', 'minimal', 2, scene, xrHelper);
-          zestyBanner6.position = new BABYLON.Vector3(0, 0, 5);
+          const zestyBanner2 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'wide', 'standard', .5, scene, xrHelper);
+          zestyBanner2.position = new BABYLON.Vector3(0, 1, 2);
 
-          const zestyBanner7 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'tall', 'transparent', 2, scene, xrHelper);
-          zestyBanner7.position = new BABYLON.Vector3(0, 0, 6);
+          const zestyBanner3 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'square', 'standard', 1, scene, xrHelper);
+          zestyBanner3.position = new BABYLON.Vector3(.5, 2, 2);
 
-          const zestyBanner8 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'wide', 'transparent', 2, scene, xrHelper);
-          zestyBanner8.position = new BABYLON.Vector3(0, 0, 7);
+          const zestyBanner4 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'tall', 'minimal', 1, scene, xrHelper);
+          zestyBanner4.position = new BABYLON.Vector3(-3, 2, .63);
+          zestyBanner4.rotate(new BABYLON.Vector3(0, 1, 0), -Math.PI / 2, BABYLON.Space.WORLD);
 
-          const zestyBanner9 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'square', 'transparent', 2, scene, xrHelper);
-          zestyBanner9.position = new BABYLON.Vector3(0, 0, 8);
+          const zestyBanner5 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'wide', 'minimal', .5, scene, xrHelper);
+          zestyBanner5.position = new BABYLON.Vector3(-3, 1, 0);
+          zestyBanner5.rotate(new BABYLON.Vector3(0, 1, 0), -Math.PI / 2, BABYLON.Space.WORLD);
+
+          const zestyBanner6 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'square', 'minimal', 1, scene, xrHelper);
+          zestyBanner6.position = new BABYLON.Vector3(-3, 2, -.5);
+          zestyBanner6.rotate(new BABYLON.Vector3(0, 1, 0), -Math.PI / 2, BABYLON.Space.WORLD);
+
+          const zestyBanner7 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'tall', 'transparent', 1, scene, xrHelper);
+          zestyBanner7.position = new BABYLON.Vector3(3, 2, .63);
+          zestyBanner7.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2, BABYLON.Space.WORLD);
+
+          const zestyBanner8 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'wide', 'transparent', .5, scene, xrHelper);
+          zestyBanner8.position = new BABYLON.Vector3(3, 1, 0);
+          zestyBanner8.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2, BABYLON.Space.WORLD);
+
+          const zestyBanner9 = new ZestyBanner("0", "0x0000000000000000000000000000000000000000", 'matic', 'square', 'transparent', 1, scene, xrHelper);
+          zestyBanner9.position = new BABYLON.Vector3(3, 2, -.5);
+          zestyBanner9.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI / 2, BABYLON.Space.WORLD);
         })();
-
-        window.scene = scene;
 
         engine.runRenderLoop(() => {
             scene.render();
